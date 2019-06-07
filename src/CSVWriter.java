@@ -22,6 +22,10 @@ class CSVWriter
 
         for (int i = 0; i < recordCount; i++)
         {
+            String formattedDuration;
+            formattedDuration = durations.get(i).equals(Duration.ZERO) ? "Unknown" : (durations.get(
+                    i).toHours( ) + ":" + ((durations.get(i).toMinutesPart( )) >= 10 ? durations.get(
+                    i).toMinutesPart( ) : "0" + durations.get(i).toMinutesPart( )));
             pw.println(
                     flightDates.get(i) + "," +
                             aircraftTypes.get(i) + "," +
@@ -29,7 +33,7 @@ class CSVWriter
                             destinations.get(i) + "," +
                             departures.get(i) + "," +
                             arrivals.get(i) + "," +
-                            durations.get(i)
+                            formattedDuration
                       );
         }
         pw.close( );

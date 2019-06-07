@@ -84,7 +84,7 @@ public class FlightAware
         //collect and format arrival time of each flight and add to ArrayList
         for (Element e : planePage.select("td.nowrap + td + td + td + td + td"))
         {
-            String formatted = e.text( ).replaceAll("\\s\\(\\?\\)", "");
+            String formatted = e.text( ).replaceAll("\\s\\(\\.\\)", "");
             arrivals.add(LocalTime.parse(formatted, timeFormatter));
         }
 
