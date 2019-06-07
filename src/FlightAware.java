@@ -77,14 +77,14 @@ public class FlightAware
         //collect and format departure time of each flight and add to ArrayList
         for (Element e : planePage.select("td.nowrap + td + td + td + td"))
         {
-            String formatted = e.text( ).replaceAll("\\s\\(\\?\\)", "");
+            String formatted = e.text( ).replaceAll("\\s$|\\?|\\s?\\(.*\\)|-.*|\\+.*", "");
             departures.add(LocalTime.parse(formatted, timeFormatter));
         }
 
         //collect and format arrival time of each flight and add to ArrayList
         for (Element e : planePage.select("td.nowrap + td + td + td + td + td"))
         {
-            String formatted = e.text( ).replaceAll("\\s\\(\\.\\)", "");
+            String formatted = e.text( ).replaceAll("\\s$|\\?|\\s?\\(.*\\)|-.*|\\+.*", "");
             arrivals.add(LocalTime.parse(formatted, timeFormatter));
         }
 
