@@ -18,6 +18,7 @@ public class FlightAware
         //all values stored in ArrayLists to accommodate varying size
         ArrayList<LocalDate> flightDates = new ArrayList<>( );
         ArrayList<String> aircraftTypes = new ArrayList<>( );
+        ArrayList<String> origins = new ArrayList<>( );
 
         try
         {
@@ -46,9 +47,15 @@ public class FlightAware
         }
 
         //collect aircraft of each flight and add to ArrayList
-        for (Element e : planePage.select("td.nowrap td"))
+        for (Element e : planePage.select("td.nowrap + td"))
         {
             aircraftTypes.add(e.text( ));
+        }
+
+        //collect origin of each flight and add to ArrayList
+        for (Element e : planePage.select("td.nowrap + td + td"))
+        {
+            origins.add(e.text( ));
         }
     }
 }
