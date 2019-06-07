@@ -3,7 +3,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -19,6 +21,10 @@ public class FlightAware
         ArrayList<LocalDate> flightDates = new ArrayList<>( );
         ArrayList<String> aircraftTypes = new ArrayList<>( );
         ArrayList<String> origins = new ArrayList<>( );
+        ArrayList<String> destinations = new ArrayList<>( );
+        ArrayList<LocalTime> departures = new ArrayList<>( );
+        ArrayList<LocalTime> arrivals = new ArrayList<>( );
+        ArrayList<Duration> durations = new ArrayList<>( );
 
         try
         {
@@ -38,12 +44,12 @@ public class FlightAware
         System.out.println(planeID);
 
         //date format on FlightAware.com
-        DateTimeFormatter df = DateTimeFormatter.ofPattern("dd-MMM-yyyy", Locale.ENGLISH);
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy", Locale.ENGLISH);
 
         //collect and format dates and add to array list
         for (Element e : planePage.select("td.nowrap"))
         {
-            flightDates.add(LocalDate.parse(e.text( ), df));
+            flightDates.add(LocalDate.parse(e.text( ), dateFormatter));
         }
 
         //collect aircraft of each flight and add to ArrayList
@@ -56,6 +62,54 @@ public class FlightAware
         for (Element e : planePage.select("td.nowrap + td + td"))
         {
             origins.add(e.text( ));
+        }
+
+        //collect destination of each flight and add to ArrayList
+        for (Element e : planePage.select("td.nowrap + td + td + td"))
+        {
+            destinations.add(e.text( ));
+        }
+
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mma z");
+
+        //collect and format departure time of each flight and add to ArrayList
+        for (Element e : planePage.select("td.nowrap + td + td + td + td"))
+        {
+            String formatted = e.text( ).replaceAll("\\s\\(\\?\\)", "");
+            departures.add(LocalTime.parse(formatted, timeFormatter));
+        }
+
+        //collect and format arrival time of each flight and add to ArrayList
+        for (Element e : planePage.select("td.nowrap + td + td + td + td + td"))
+        {
+            String formatted = e.text( ).replaceAll("\\s\\(\\?\\)", "");
+            arrivals.add(LocalTime.parse(formatted, timeFormatter));
+        }
+
+        //collect and store duration of each flight and add to ArrayList
+        for (Element e : planePage.select("td.nowrap + td + td + td + td + td + td"))
+        {
+            //Java Durations are funky
+            //make sure that we have an actual duration and not any random format
+            if (e.text( ).equalsIgnoreCase("Scheduled") || e.text( ).equalsIgnoreCase(
+                    "Cancelled") || e.text( ).equalsIgnoreCase("En Route"))
+            {
+                durations.add(Duration.ZERO);
+            }
+            else
+            {
+                //split string into hours and minutes
+                String[] time = e.text( ).split(":");
+                Duration d = Duration.ZERO;
+
+                //add to new Duration
+                d = d.plusHours(Long.parseLong(time[0]));
+                d = d.plusMinutes(Long.parseLong(time[1]));
+
+                //add duration to array list
+                durations.add(d);
+                ///FORMAT: PT#H#M (PT is at start of all, then number of hours and number of minutes)
+            }
         }
     }
 }
