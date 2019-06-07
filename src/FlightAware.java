@@ -2,6 +2,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -110,6 +111,17 @@ public class FlightAware
                 durations.add(d);
                 ///FORMAT: PT#H#M (PT is at start of all, then number of hours and number of minutes)
             }
+        }
+
+        //write flight to a CSV file
+        try
+        {
+            CSVWriter.write(planeID, flightDates, aircraftTypes, origins, destinations, departures, arrivals,
+                    durations);
+        }
+        catch (FileNotFoundException e)
+        {
+            e.printStackTrace( );
         }
     }
 }
