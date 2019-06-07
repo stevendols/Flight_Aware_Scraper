@@ -1,7 +1,6 @@
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -18,6 +17,7 @@ public class FlightAware
 
         //all values stored in ArrayLists to accommodate varying size
         ArrayList<LocalDate> flightDates = new ArrayList<>( );
+        ArrayList<String> aircraftTypes = new ArrayList<>( );
 
         try
         {
@@ -36,14 +36,19 @@ public class FlightAware
         planeID = planePage.select("td[align=left] h3").text( ).split(" ")[0];
         System.out.println(planeID);
 
-        //collect raw dates from web page
-        Elements rawDates = planePage.select("td.nowrap");
+        //date format on FlightAware.com
         DateTimeFormatter df = DateTimeFormatter.ofPattern("dd-MMM-yyyy", Locale.ENGLISH);
 
-        //format dates correctly and add to array list
-        for (Element e : rawDates)
+        //collect and format dates and add to array list
+        for (Element e : planePage.select("td.nowrap"))
         {
             flightDates.add(LocalDate.parse(e.text( ), df));
+        }
+
+        //collect aircraft of each flight and add to ArrayList
+        for (Element e : planePage.select("td.nowrap td"))
+        {
+            aircraftTypes.add(e.text( ));
         }
     }
 }
