@@ -29,7 +29,8 @@ public class FlightAware
 
         try
         {
-            planePage = Jsoup.connect("https://flightaware.com/live/flight/CAV470").get( );
+            //select a random flight
+            planePage = Jsoup.connect("https://flightaware.com/live/flight/random").get( );
             planePage = Jsoup.connect(planePage.location( ) + "/history").get( );
         }
         catch (IOException e)
