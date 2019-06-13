@@ -15,7 +15,7 @@ class CSVWriter
                       ArrayList<LocalTime> arrivals, ArrayList<Duration> durations) throws FileNotFoundException
     {
         File file = new File("../csv/" + plane + ".csv");
-        System.out.println(file.getAbsolutePath( ));
+
         PrintWriter pw = new PrintWriter(new File("csv/" + plane + ".csv"));
         pw.println(
                 "Date,Aircraft,Origin,Origin Coordinates,Destination,Destination Coordinates,Departure,Arrival,Duration");
@@ -41,5 +41,6 @@ class CSVWriter
                       );
         }
         pw.close( );
+        System.out.println("Writing to " + file.getAbsolutePath( ) + " is complete");
     }
 }

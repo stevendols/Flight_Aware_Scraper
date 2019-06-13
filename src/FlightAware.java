@@ -33,7 +33,7 @@ public class FlightAware
         try
         {
             //select a random flight
-            planePage = Jsoup.connect("https://flightaware.com/live/flight/n14053").get( );
+            planePage = Jsoup.connect("https://flightaware.com/live/flight/random").get( );
             planePage = Jsoup.connect(planePage.location( ) + "/history/500").get( );
         }
         catch (IOException e)
@@ -46,23 +46,28 @@ public class FlightAware
         //get plane ID (N-Number or flight identifier)
         //ID is the first word in a 4 word string
         planeID = planePage.select("td[align=left] h3").text( ).split(" ")[0];
-        System.out.println(planeID);
+        System.out.printf("Collecting Data for Plane: %s\n-----------------------------------\n", planeID);
 
         //date format on FlightAware.com
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy", Locale.ENGLISH);
 
         //collect and format dates and add to array list
+        System.out.println("Collecting Flight Dates.....");
         for (Element e : planePage.select("td.nowrap"))
         {
             flightDates.add(LocalDate.parse(e.text( ), dateFormatter));
         }
+        System.out.printf("%d Dates Collected\n-------------------\n", flightDates.size( ));
 
+        System.out.println("Collecting Aircraft Types.....");
         //collect aircraft of each flight and add to ArrayList
         for (Element e : planePage.select("td.nowrap + td"))
         {
             aircraftTypes.add(e.text( ));
         }
+        System.out.printf("%d Aircraft Types Collected\n----------------------------\n", aircraftTypes.size( ));
 
+        System.out.println("Collecting Flight Origins.....");
         //collect origin of each flight and add to ArrayList
         for (Element e : planePage.select("td.nowrap + td + td"))
         {
@@ -81,7 +86,9 @@ public class FlightAware
                 ex.printStackTrace( );
             }
         }
+        System.out.printf("%d Origins Collected\n---------------------\n", origins.size( ));
 
+        System.out.println("Collecting Flight Destinations");
         //collect destination of each flight and add to ArrayList
         for (Element e : planePage.select("td.nowrap + td + td + td"))
         {
@@ -101,23 +108,29 @@ public class FlightAware
                 ex.printStackTrace( );
             }
         }
+        System.out.printf("%d Destinations Collected\n--------------------------\n", destinations.size( ));
 
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mma z");
 
+        System.out.println("Collecting Flight Departure Times.....");
         //collect and format departure time of each flight and add to ArrayList
         for (Element e : planePage.select("td.nowrap + td + td + td + td"))
         {
             String formatted = e.text( ).replaceAll("\\s[+\\-(].+", "");
             departures.add(LocalTime.parse(formatted, timeFormatter));
         }
+        System.out.printf("%d Departure Times Collected\n-----------------------------\n", departures.size( ));
 
+        System.out.println("Collecting Flight Arrival Times.....");
         //collect and format arrival time of each flight and add to ArrayList
         for (Element e : planePage.select("td.nowrap + td + td + td + td + td"))
         {
             String formatted = e.text( ).replaceAll("\\s[+\\-(].+", "");
             arrivals.add(LocalTime.parse(formatted, timeFormatter));
         }
+        System.out.printf("%d Arrival Times Collected\n---------------------------\n", arrivals.size( ));
 
+        System.out.println("Collecting Flight Durations.....");
         //collect and store duration of each flight and add to ArrayList
         for (Element e : planePage.select("td.nowrap + td + td + td + td + td + td"))
         {
@@ -143,7 +156,9 @@ public class FlightAware
                 ///FORMAT: PT#H#M (PT is at start of all, then number of hours and number of minutes)
             }
         }
+        System.out.printf("%d Durations Collected\n-----------------------\n", durations.size( ));
 
+        System.out.println("Writing Data to File.....");
         //write flight to a CSV file
         try
         {
@@ -155,10 +170,12 @@ public class FlightAware
         {
             e.printStackTrace( );
         }
+        System.out.println("Data Collection and Storage Complete for " + planeID);
+        System.out.println("--------------------------------------------------");
     }
 
     private static int randomDelay()
     {
-        return (int) (Math.random( ) * 1000) + 2000;
+        return (int) (Math.random( ) * 2000) + 3000;
     }
 }
