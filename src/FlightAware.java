@@ -55,23 +55,30 @@ public class FlightAware
 
         //collect and format dates and add to array list
         System.out.println("Collecting Flight Dates.....");
+        int i = 0;
         for (Element e : planePage.select("td.nowrap"))
         {
             flightDates.add(LocalDate.parse(e.text( ), dateFormatter));
+            System.out.printf("\t%d: %s\n", i, flightDates.get(i));
+            i++;
         }
         System.out.printf("%d Dates Collected\n--------------------------------------------------\n",
                 flightDates.size( ));
 
         System.out.println("Collecting Aircraft Types.....");
         //collect aircraft of each flight and add to ArrayList
+        i = 0;
         for (Element e : planePage.select("td.nowrap + td"))
         {
             aircraftTypes.add(e.text( ));
+            System.out.printf("\t%d: %s\n", i, aircraftTypes.get(i));
+            i++;
         }
         System.out.printf("%d Aircraft Types Collected\n--------------------------------------------------\n",
                 aircraftTypes.size( ));
 
         System.out.println("Collecting Flight Origins.....");
+        i = 0;
         //collect origin of each flight and add to ArrayList
         for (Element e : planePage.select("td.nowrap + td + td"))
         {
@@ -84,16 +91,20 @@ public class FlightAware
                 google = Jsoup.connect("https://www.google.com/search?q=" + airportCode + "+coordinates").get( );
                 String coordinates = '"' + google.selectFirst("div.Z0LcW").text( ) + '"';
                 originCoordinates.add(coordinates);
+                System.out.printf("\t%d: %s at %s", i, origins.get(i), originCoordinates.get(i));
+                i++;
             }
             catch (IOException | InterruptedException ex)
             {
                 ex.printStackTrace( );
+                System.out.println(ex.getMessage( ));
             }
         }
         System.out.printf("%d Origins Collected\n--------------------------------------------------\n",
                 origins.size( ));
 
         System.out.println("Collecting Flight Destinations");
+        i = 0;
         //collect destination of each flight and add to ArrayList
         for (Element e : planePage.select("td.nowrap + td + td + td"))
         {
@@ -107,10 +118,13 @@ public class FlightAware
 
                 String coordinates = '"' + google.selectFirst("div.Z0LcW").text( ) + '"';
                 destinationCoordinates.add(coordinates);
+                System.out.printf("\t%d: %s at %s", i, destinations.get(i), destinationCoordinates.get(i));
+                i++;
             }
             catch (IOException | InterruptedException ex)
             {
                 ex.printStackTrace( );
+                System.out.println(ex.getMessage( ));
             }
         }
         System.out.printf("%d Destinations Collected\n--------------------------------------------------\n",
@@ -119,26 +133,33 @@ public class FlightAware
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mma z");
 
         System.out.println("Collecting Flight Departure Times.....");
+        i = 0;
         //collect and format departure time of each flight and add to ArrayList
         for (Element e : planePage.select("td.nowrap + td + td + td + td"))
         {
             String formatted = e.text( ).replaceAll("\\s[+\\-(].+", "");
             departures.add(LocalTime.parse(formatted, timeFormatter));
+            System.out.printf("\t%d: %s", i, departures.get(i));
+            i++;
         }
         System.out.printf("%d Departure Times Collected\n--------------------------------------------------\n",
                 departures.size( ));
 
         System.out.println("Collecting Flight Arrival Times.....");
+        i = 0;
         //collect and format arrival time of each flight and add to ArrayList
         for (Element e : planePage.select("td.nowrap + td + td + td + td + td"))
         {
             String formatted = e.text( ).replaceAll("\\s[+\\-(].+", "");
             arrivals.add(LocalTime.parse(formatted, timeFormatter));
+            System.out.printf("\t%d: %s", i, arrivals.get(i));
+            i++;
         }
         System.out.printf("%d Arrival Times Collected\n--------------------------------------------------\n",
                 arrivals.size( ));
 
         System.out.println("Collecting Flight Durations.....");
+        i = 0;
         //collect and store duration of each flight and add to ArrayList
         for (Element e : planePage.select("td.nowrap + td + td + td + td + td + td"))
         {
@@ -163,6 +184,8 @@ public class FlightAware
                 durations.add(d);
                 ///FORMAT: PT#H#M (PT is at start of all, then number of hours and number of minutes)
             }
+            System.out.printf("\t%d: %s", i, durations.get(i));
+            i++;
         }
         System.out.printf("%d Durations Collected\n--------------------------------------------------\n",
                 durations.size( ));
