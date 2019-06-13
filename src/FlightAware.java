@@ -16,12 +16,15 @@ public class FlightAware
     public static void main(String[] args)
     {
         Document planePage = null;
+        Document google;
         String planeID;
 
         //all values stored in ArrayLists to accommodate varying size
         ArrayList<LocalDate> flightDates = new ArrayList<>( );
         ArrayList<String> aircraftTypes = new ArrayList<>( );
         ArrayList<String> origins = new ArrayList<>( );
+        ArrayList<String> originCoordinates = new ArrayList<>( );
+        ArrayList<String> destinationCoordinates = new ArrayList<>( );
         ArrayList<String> destinations = new ArrayList<>( );
         ArrayList<LocalTime> departures = new ArrayList<>( );
         ArrayList<LocalTime> arrivals = new ArrayList<>( );
@@ -64,12 +67,30 @@ public class FlightAware
         for (Element e : planePage.select("td.nowrap + td + td"))
         {
             origins.add(e.text( ));
+            try
+            {
+                google = Jsoup.connect("https://www.google.com/search?q=" + e.text( ) + "+coordinates").get( );
+                originCoordinates.add(google.selectFirst("div.Z0LcW").text( ));
+            }
+            catch (IOException ex)
+            {
+                ex.printStackTrace( );
+            }
         }
 
         //collect destination of each flight and add to ArrayList
         for (Element e : planePage.select("td.nowrap + td + td + td"))
         {
             destinations.add(e.text( ));
+            try
+            {
+                google = Jsoup.connect("https://www.google.com/search?q=" + e.text( ) + "+coordinates").get( );
+                destinationCoordinates.add(google.selectFirst("div.Z0LcW").text( ));
+            }
+            catch (IOException ex)
+            {
+                ex.printStackTrace( );
+            }
         }
 
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mma z");
@@ -117,7 +138,8 @@ public class FlightAware
         //write flight to a CSV file
         try
         {
-            CSVWriter.write(planeID, flightDates, aircraftTypes, origins, destinations, departures, arrivals,
+            CSVWriter.write(planeID, flightDates, aircraftTypes, origins, originCoordinates, destinations,
+                    destinationCoordinates, departures, arrivals,
                     durations);
         }
         catch (FileNotFoundException e)

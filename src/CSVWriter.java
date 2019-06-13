@@ -10,13 +10,15 @@ import java.util.ArrayList;
 class CSVWriter
 {
     static void write(String plane, ArrayList<LocalDate> flightDates, ArrayList<String> aircraftTypes,
-                      ArrayList<String> origins, ArrayList<String> destinations, ArrayList<LocalTime> departures,
+                      ArrayList<String> origins, ArrayList<String> originCoordinates, ArrayList<String> destinations,
+                      ArrayList<String> destinationCoordinates, ArrayList<LocalTime> departures,
                       ArrayList<LocalTime> arrivals, ArrayList<Duration> durations) throws FileNotFoundException
     {
         File file = new File("../csv/" + plane + ".csv");
         System.out.println(file.getAbsolutePath( ));
         PrintWriter pw = new PrintWriter(new File("csv/" + plane + ".csv"));
-        pw.println("Date,Aircraft,Origin,Destination,Departure,Arrival,Duration");
+        pw.println(
+                "Date,Aircraft,Origin,Origin Coordinates,Destination,Destination Coordinates,Departure,Arrival,Duration");
 
         int recordCount = flightDates.size( );
 
@@ -30,7 +32,9 @@ class CSVWriter
                     flightDates.get(i) + "," +
                             aircraftTypes.get(i) + "," +
                             origins.get(i) + "," +
+                            originCoordinates.get(i) + "," +
                             destinations.get(i) + "," +
+                            destinationCoordinates.get(i) + "," +
                             departures.get(i) + "," +
                             arrivals.get(i) + "," +
                             formattedDuration
