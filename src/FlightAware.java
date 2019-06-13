@@ -33,7 +33,7 @@ public class FlightAware
         try
         {
             //select a random flight
-            planePage = Jsoup.connect("https://flightaware.com/live/flight/random").get( );
+            planePage = Jsoup.connect("https://flightaware.com/live/flight/n14053").get( );
             planePage = Jsoup.connect(planePage.location( ) + "/history/500").get( );
         }
         catch (IOException e)
@@ -71,7 +71,7 @@ public class FlightAware
             {
                 String airportCode = e.text( ).substring(e.text( ).indexOf("(") + 1, e.text( ).indexOf(")"));
 
-                Thread.sleep((int) (Math.random( ) * (3000 - 2000)) + 2000);
+                Thread.sleep(randomDelay( ));
                 google = Jsoup.connect("https://www.google.com/search?q=" + airportCode + "+coordinates").get( );
                 String coordinates = '"' + google.selectFirst("div.Z0LcW").text( ) + '"';
                 originCoordinates.add(coordinates);
@@ -90,7 +90,7 @@ public class FlightAware
             {
                 String airportCode = e.text( ).substring(e.text( ).indexOf("(") + 1, e.text( ).indexOf(")"));
 
-                Thread.sleep(5000);
+                Thread.sleep(randomDelay( ));
                 google = Jsoup.connect("https://www.google.com/search?q=" + airportCode + "+coordinates").get( );
 
                 String coordinates = '"' + google.selectFirst("div.Z0LcW").text( ) + '"';
@@ -102,20 +102,19 @@ public class FlightAware
             }
         }
 
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mma");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mma z");
 
         //collect and format departure time of each flight and add to ArrayList
         for (Element e : planePage.select("td.nowrap + td + td + td + td"))
         {
-            String formatted = e.text( ).replaceAll("\\s*$|\\?|\\s?\\(.*\\)|-.*|\\s\\+.*", "");
-            //departures.add(LocalTime.parse(formatted, timeFormatter));
-            departures.add(LocalTime.parse(formatted));
+            String formatted = e.text( ).replaceAll("\\s[+\\-(].+", "");
+            departures.add(LocalTime.parse(formatted, timeFormatter));
         }
 
         //collect and format arrival time of each flight and add to ArrayList
         for (Element e : planePage.select("td.nowrap + td + td + td + td + td"))
         {
-            String formatted = e.text( ).replaceAll("\\s*$|\\?|\\s?\\(.*\\)|-.*|\\+.*", "");
+            String formatted = e.text( ).replaceAll("\\s[+\\-(].+", "");
             arrivals.add(LocalTime.parse(formatted, timeFormatter));
         }
 
@@ -156,5 +155,10 @@ public class FlightAware
         {
             e.printStackTrace( );
         }
+    }
+
+    private static int randomDelay()
+    {
+        return (int) (Math.random( ) * 1000) + 2000;
     }
 }
