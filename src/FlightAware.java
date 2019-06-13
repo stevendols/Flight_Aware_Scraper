@@ -34,7 +34,7 @@ public class FlightAware
         {
             //select a random flight
             planePage = Jsoup.connect("https://flightaware.com/live/flight/random").get( );
-            planePage = Jsoup.connect(planePage.location( ) + "/history").get( );
+            planePage = Jsoup.connect(planePage.location( ) + "/history/500").get( );
         }
         catch (IOException e)
         {
@@ -69,8 +69,11 @@ public class FlightAware
             origins.add(e.text( ));
             try
             {
-                google = Jsoup.connect("https://www.google.com/search?q=" + e.text( ) + "+coordinates").get( );
-                originCoordinates.add(google.selectFirst("div.Z0LcW").text( ));
+                String airportCode = e.text( ).substring(e.text( ).indexOf("(") + 1, e.text( ).indexOf(")"));
+
+                google = Jsoup.connect("https://www.google.com/search?q=" + airportCode + "+coordinates").get( );
+                String coordinates = '"' + google.selectFirst("div.Z0LcW").text( ) + '"';
+                originCoordinates.add(coordinates);
             }
             catch (IOException ex)
             {
@@ -84,8 +87,12 @@ public class FlightAware
             destinations.add(e.text( ));
             try
             {
-                google = Jsoup.connect("https://www.google.com/search?q=" + e.text( ) + "+coordinates").get( );
-                destinationCoordinates.add(google.selectFirst("div.Z0LcW").text( ));
+                String airportCode = e.text( ).substring(e.text( ).indexOf("(") + 1, e.text( ).indexOf(")"));
+                System.out.println(airportCode);
+                google = Jsoup.connect("https://www.google.com/search?q=" + airportCode + "+coordinates").get( );
+
+                String coordinates = '"' + google.selectFirst("div.Z0LcW").text( ) + '"';
+                destinationCoordinates.add(coordinates);
             }
             catch (IOException ex)
             {
@@ -93,19 +100,20 @@ public class FlightAware
             }
         }
 
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mma z");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mma");
 
         //collect and format departure time of each flight and add to ArrayList
         for (Element e : planePage.select("td.nowrap + td + td + td + td"))
         {
-            String formatted = e.text( ).replaceAll("\\s$|\\?|\\s?\\(.*\\)|-.*|\\+.*", "");
-            departures.add(LocalTime.parse(formatted, timeFormatter));
+            String formatted = e.text( ).replaceAll("\\s*$|\\?|\\s?\\(.*\\)|-.*|\\s\\+.*", "");
+            //departures.add(LocalTime.parse(formatted, timeFormatter));
+            departures.add(LocalTime.parse(formatted));
         }
 
         //collect and format arrival time of each flight and add to ArrayList
         for (Element e : planePage.select("td.nowrap + td + td + td + td + td"))
         {
-            String formatted = e.text( ).replaceAll("\\s$|\\?|\\s?\\(.*\\)|-.*|\\+.*", "");
+            String formatted = e.text( ).replaceAll("\\s*$|\\?|\\s?\\(.*\\)|-.*|\\+.*", "");
             arrivals.add(LocalTime.parse(formatted, timeFormatter));
         }
 
