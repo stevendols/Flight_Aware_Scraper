@@ -71,11 +71,12 @@ public class FlightAware
             {
                 String airportCode = e.text( ).substring(e.text( ).indexOf("(") + 1, e.text( ).indexOf(")"));
 
+                Thread.sleep((int) (Math.random( ) * (3000 - 2000)) + 2000);
                 google = Jsoup.connect("https://www.google.com/search?q=" + airportCode + "+coordinates").get( );
                 String coordinates = '"' + google.selectFirst("div.Z0LcW").text( ) + '"';
                 originCoordinates.add(coordinates);
             }
-            catch (IOException ex)
+            catch (IOException | InterruptedException ex)
             {
                 ex.printStackTrace( );
             }
@@ -88,13 +89,14 @@ public class FlightAware
             try
             {
                 String airportCode = e.text( ).substring(e.text( ).indexOf("(") + 1, e.text( ).indexOf(")"));
-                System.out.println(airportCode);
+
+                Thread.sleep(5000);
                 google = Jsoup.connect("https://www.google.com/search?q=" + airportCode + "+coordinates").get( );
 
                 String coordinates = '"' + google.selectFirst("div.Z0LcW").text( ) + '"';
                 destinationCoordinates.add(coordinates);
             }
-            catch (IOException ex)
+            catch (IOException | InterruptedException ex)
             {
                 ex.printStackTrace( );
             }
