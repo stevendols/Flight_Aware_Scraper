@@ -41,6 +41,6 @@ class CSVWriter
                       );
         }
         pw.close( );
-        System.out.println("Writing to " + file.getAbsolutePath( ) + " is complete");
+        System.out.println("Writing to " + file.getPath( ) + " is complete");
     }
 }
