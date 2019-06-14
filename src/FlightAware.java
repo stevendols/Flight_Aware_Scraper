@@ -8,10 +8,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 public class FlightAware
 {
@@ -83,6 +80,8 @@ public class FlightAware
         System.out.printf("%d Aircraft Types Collected\n--------------------------------------------------\n",
                 aircraftTypes.size( ));
 
+        Scanner scanner = new Scanner(System.in);
+
         System.out.println("Collecting Flight Origins.....");
         i = 1;
         //collect origin of each flight and add to ArrayList
@@ -91,27 +90,30 @@ public class FlightAware
             origins.add(e.text( ));
             if (!coordinatesSearched.containsKey(e.text( )))
             {
+                String airportCode = "", coordinates = "";
                 try
                 {
-//                    String airportCode = e.text( ).substring(e.text( ).indexOf("(") + 1, e.text( ).indexOf(")"));
+                    airportCode = e.text( ).substring(e.text( ).indexOf("(") + 1, e.text( ).indexOf(")"));
 
                     Thread.sleep(randomDelay( ));
-                    google = Jsoup.connect("https://www.google.com/search?q=" + e.text( ) + "+coordinates").get( );
-                    String coordinates = '"' + google.selectFirst("div.kp-header").text( ) + '"';
-                    coordinatesSearched.put(e.text( ), coordinates);
-                    originCoordinates.add(coordinates);
-                    System.out.printf("\t%d/%d: %s at %s\n", i, recordCount, origins.get(i - 1),
-                            originCoordinates.get(i - 1));
+                    google = Jsoup.connect("https://www.google.com/search?q=" + airportCode + "+coordinates").get( );
+                    coordinates = '"' + google.selectFirst("div.kp-header").text( ) + '"';
                 }
                 catch (NullPointerException npe)
                 {
-                    originCoordinates.add("Unknown");
-                    coordinatesSearched.put(e.text( ), "Unknown");
-                    System.err.printf("\t%d/%d: %s location unknown\n", i, recordCount, origins.get(i - 1));
+                    System.out.printf("Automatic Lookup failed, please enter coordinates for %s\n>", airportCode);
+                    coordinates = '"' + scanner.nextLine( ) + '"';
                 }
                 catch (IOException | InterruptedException ex)
                 {
                     ex.printStackTrace( );
+                }
+                finally
+                {
+                    coordinatesSearched.put(e.text( ), coordinates);
+                    originCoordinates.add(coordinates);
+                    System.out.printf("\t%d/%d: %s at %s\n", i, recordCount, origins.get(i - 1),
+                            originCoordinates.get(i - 1));
                 }
             }
             else
@@ -127,39 +129,45 @@ public class FlightAware
 
         System.out.println("Collecting Flight Destinations");
         i = 1;
+
         //collect destination of each flight and add to ArrayList
         for (Element e : planePage.select("td.nowrap + td + td + td"))
         {
             destinations.add(e.text( ));
             if (!coordinatesSearched.containsKey(e.text( )))
             {
+                String airportCode = "", coordinates = "";
                 try
                 {
-//                    airportCode = e.text( ).substring(e.text( ).indexOf("(") + 1, e.text( ).indexOf(")"));
+                    airportCode = e.text( ).substring(e.text( ).indexOf("(") + 1, e.text( ).indexOf(")"));
 
                     Thread.sleep(randomDelay( ));
-                    google = Jsoup.connect("https://www.google.com/search?q=" + e.text( ) + "+coordinates").get( );
-                    String coordinates = '"' + google.selectFirst("div.kp-header").text( ) + '"';
-                    coordinatesSearched.put(e.text( ), coordinates);
-                    destinationCoordinates.add(coordinates);
+                    google = Jsoup.connect("https://www.google.com/search?q=" + airportCode + "+coordinates").get( );
+                    coordinates = '"' + google.selectFirst("div.kp-header").text( ) + '"';
                 }
                 catch (NullPointerException npe)
                 {
-                    destinationCoordinates.add("Unknown");
-                    coordinatesSearched.put(e.text( ), "Unknown");
-                    System.err.printf("\t%d/%d: %s location unknown\n", i, recordCount, origins.get(i - 1));
+                    System.out.printf("Automatic Lookup failed, please enter coordinates for %s\n>", airportCode);
+                    coordinates = '"' + scanner.nextLine( ) + '"';
                 }
                 catch (IOException | InterruptedException ex)
                 {
                     ex.printStackTrace( );
                 }
+                finally
+                {
+                    coordinatesSearched.put(e.text( ), coordinates);
+                    destinationCoordinates.add(coordinates);
+                    System.out.printf("\t%d/%d: %s at %s\n", i, recordCount, destinations.get(i - 1),
+                            destinationCoordinates.get(i - 1));
+                }
             }
             else
             {
                 destinationCoordinates.add(coordinatesSearched.get(e.text( )));
+                System.out.printf("\t%d/%d: %s at %s\n", i, recordCount, destinations.get(i - 1),
+                        destinationCoordinates.get(i - 1));
             }
-            System.out.printf("\t%d/%d: %s at %s\n", i, recordCount, destinations.get(i - 1),
-                    destinationCoordinates.get(i - 1));
             i++;
         }
         System.out.printf("%d Destinations Collected\n--------------------------------------------------\n",
@@ -172,7 +180,7 @@ public class FlightAware
         //collect and format departure time of each flight and add to ArrayList
         for (Element e : planePage.select("td.nowrap + td + td + td + td"))
         {
-            String formatted = e.text( ).replaceAll("(?>\\s[A-Z]{3})?(\\s[+\\-(].+)?", "");
+            String formatted = e.text( ).replaceAll("(?>\\s[A-Z]{3,4})?(\\s[+\\-(].+)?", "");
             departures.add(LocalTime.parse(formatted, timeFormatter));
             System.out.printf("\t%d/%d: %s\n", i, recordCount, departures.get(i - 1));
             i++;
@@ -185,7 +193,7 @@ public class FlightAware
         //collect and format arrival time of each flight and add to ArrayList
         for (Element e : planePage.select("td.nowrap + td + td + td + td + td"))
         {
-            String formatted = e.text( ).replaceAll("(?>\\s[A-Z]{3})?(\\s[+\\-(].+)?", "");
+            String formatted = e.text( ).replaceAll("(?>\\s[A-Z]{3,4})?(\\s[+\\-(].+)?", "");
             arrivals.add(LocalTime.parse(formatted, timeFormatter));
             System.out.printf("\t%d/%d: %s\n", i, recordCount, arrivals.get(i - 1));
             i++;

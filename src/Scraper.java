@@ -28,6 +28,7 @@ public class Scraper
         Duration d = Duration.ofMillis(delay);
         long minutes = d.toMinutes( );
         long secs = d.minusMinutes(minutes).getSeconds( );
-        return minutes + ":" + secs;
+        String toReturn = minutes + ":" + (secs >= 10 ? secs : ("0" + secs));
+        return toReturn;
     }
 }
