@@ -100,6 +100,14 @@ public class FlightAware
                     String coordinates = '"' + google.selectFirst("div.kp-header").text( ) + '"';
                     coordinatesSearched.put(e.text( ), coordinates);
                     originCoordinates.add(coordinates);
+                    System.out.printf("\t%d/%d: %s at %s\n", i, recordCount, origins.get(i - 1),
+                            originCoordinates.get(i - 1));
+                }
+                catch (NullPointerException npe)
+                {
+                    originCoordinates.add("Unknown");
+                    coordinatesSearched.put(e.text( ), "Unknown");
+                    System.err.printf("\t%d/%d: %s location unknown\n", i, recordCount, origins.get(i - 1));
                 }
                 catch (IOException | InterruptedException ex)
                 {
@@ -109,8 +117,9 @@ public class FlightAware
             else
             {
                 originCoordinates.add(coordinatesSearched.get(e.text( )));
+                System.out.printf("\t%d/%d: %s at %s\n", i, recordCount, origins.get(i - 1),
+                        originCoordinates.get(i - 1));
             }
-            System.out.printf("\t%d/%d: %s at %s\n", i, recordCount, origins.get(i - 1), originCoordinates.get(i - 1));
             i++;
         }
         System.out.printf("%d Origins Collected\n--------------------------------------------------\n",
@@ -133,6 +142,12 @@ public class FlightAware
                     String coordinates = '"' + google.selectFirst("div.kp-header").text( ) + '"';
                     coordinatesSearched.put(e.text( ), coordinates);
                     destinationCoordinates.add(coordinates);
+                }
+                catch (NullPointerException npe)
+                {
+                    destinationCoordinates.add("Unknown");
+                    coordinatesSearched.put(e.text( ), "Unknown");
+                    System.err.printf("\t%d/%d: %s location unknown\n", i, recordCount, origins.get(i - 1));
                 }
                 catch (IOException | InterruptedException ex)
                 {
@@ -231,4 +246,5 @@ public class FlightAware
     {
         return (int) (Math.random( ) * 8000) + 2000;
     }
+
 }
