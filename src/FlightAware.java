@@ -38,7 +38,7 @@ public class FlightAware
         try
         {
             //select a random flight
-            planePage = Jsoup.connect("https://flightaware.com/live/flight/kap1875").get( );
+            planePage = Jsoup.connect("https://flightaware.com/live/flight/random").get( );
             planePage = Jsoup.connect(planePage.location( ) + "/history/500").get( );
         }
         catch (IOException e)
@@ -93,11 +93,11 @@ public class FlightAware
             {
                 try
                 {
-                    String airportCode = e.text( ).substring(e.text( ).indexOf("(") + 1, e.text( ).indexOf(")"));
+//                    String airportCode = e.text( ).substring(e.text( ).indexOf("(") + 1, e.text( ).indexOf(")"));
 
                     Thread.sleep(randomDelay( ));
-                    google = Jsoup.connect("https://www.google.com/search?q=" + airportCode + "+coordinates").get( );
-                    String coordinates = '"' + google.selectFirst("div.Z0LcW").text( ) + '"';
+                    google = Jsoup.connect("https://www.google.com/search?q=" + e.text( ) + "+coordinates").get( );
+                    String coordinates = '"' + google.selectFirst("div.kp-header").text( ) + '"';
                     coordinatesSearched.put(e.text( ), coordinates);
                     originCoordinates.add(coordinates);
                 }
@@ -124,27 +124,19 @@ public class FlightAware
             destinations.add(e.text( ));
             if (!coordinatesSearched.containsKey(e.text( )))
             {
-                String airportCode = "";
                 try
                 {
-                    airportCode = e.text( ).substring(e.text( ).indexOf("(") + 1, e.text( ).indexOf(")"));
+//                    airportCode = e.text( ).substring(e.text( ).indexOf("(") + 1, e.text( ).indexOf(")"));
 
                     Thread.sleep(randomDelay( ));
-                    google = Jsoup.connect("https://www.google.com/search?q=" + airportCode + "+coordinates").get( );
-                    String coordinates = '"' + google.selectFirst("div.Z0LcW").text( ) + '"';
+                    google = Jsoup.connect("https://www.google.com/search?q=" + e.text( ) + "+coordinates").get( );
+                    String coordinates = '"' + google.selectFirst("div.kp-header").text( ) + '"';
                     coordinatesSearched.put(e.text( ), coordinates);
                     destinationCoordinates.add(coordinates);
                 }
                 catch (IOException | InterruptedException ex)
                 {
                     ex.printStackTrace( );
-                }
-                catch (NullPointerException npe)
-                {
-                    System.out.println("Airport Code = " + airportCode);
-                    System.out.println("https://www.google.com/search?q=" + airportCode + "+coordinates");
-                    npe.printStackTrace( );
-                    System.exit(-20);
                 }
             }
             else
