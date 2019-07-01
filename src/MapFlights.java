@@ -9,13 +9,18 @@ import java.util.Scanner;
 public class MapFlights
 {
     private static Plane p;
-    private static Map<String, Integer> visitCount = new HashMap<>( );
-    private static Map<String, String> nameHash = new HashMap<>( );
+    private static Map<String, Integer> visitCount;
+    private static Map<String, Integer> routeCount;
+    private static Map<String, String> nameHash;
 
     public static void main(String[] args)
     {
         String plane;
-        if (args[0] == null)
+        visitCount = new HashMap<>( );
+        routeCount = new HashMap<>( );
+        nameHash = new HashMap<>( );
+
+        if (args.length == 0)
         {
             Scanner scan = new Scanner(System.in);
             System.out.println("Enter Tail Number or R for random plane");
@@ -41,6 +46,10 @@ public class MapFlights
 
             visitCount.merge(translateCoordinates(p.getDestinationCoordinates( ).get(i)), 1, Integer::sum);
             nameHash.put(translateCoordinates(p.getDestinationCoordinates( ).get(i)), p.getDestinations( ).get(i));
+
+            routeCount.merge(
+                    translateCoordinates(p.getOriginCoordinates( ).get(i)) + " " + translateCoordinates(
+                            p.getDestinationCoordinates( ).get(i)), 1, Integer::sum);
         }
     }
 
@@ -94,7 +103,27 @@ public class MapFlights
             }
 
             //create Placemark for each route
-
+            for (String key : routeCount.keySet( ))
+            {
+                kml.printf("\t\t<Placemark>\n" +
+                                "\t\t\t<name>%s</name>\n" +
+                                "\t\t\t<description>%s</description>\n" +
+                                "\t\t\t<LineString>\n" +
+                                "\t\t\t<extrude>1</extrude>\n" +
+                                "\t\t\t<tesselate>1</tesselate>\n" +
+                                "\t\t\t\t<coordinates>\n" +
+                                "\t\t\t\t\t%s\n" +
+                                "\t\t\t\t</coordinates>\n" +
+                                "\t\t\t</LineString>\n" +
+                                "\t\t\t<Style>\n" +
+                                "\t\t\t\t<LineStyle>\n" +
+                                "\t\t\t\t\t<width>%s</width>\n" +
+                                "\t\t\t\t\t<color>%s</color>\n" +
+                                "\t\t\t\t</LineStyle>\n" +
+                                "\t\t\t</Style>\n" +
+                                "\t\t</Placemark>\n", "", routeCount.get(key) + " flights traveled this route\n\n", key,
+                        routeCount.get(key), "#FFFFFFFF");
+            }
 
             kml.printf("\t</Document>\n" +
                     "</kml>");
@@ -132,6 +161,7 @@ public class MapFlights
         return toReturn.toString( );
     }
 
+    //TODO handle blank coordinates
     private static String translateCoordinates(String s)
     {
         String latitude = s.substring(0, s.indexOf(","));
