@@ -3,25 +3,34 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
+
+import static java.time.temporal.ChronoUnit.DAYS;
 
 
 class CSVWriter
 {
-    static void write(String plane, ArrayList<LocalDate> flightDates, ArrayList<String> aircraftTypes,
-                      ArrayList<String> origins, ArrayList<String> originCoordinates, ArrayList<String> destinations,
-                      ArrayList<String> destinationCoordinates, ArrayList<LocalTime> departures,
-                      ArrayList<LocalTime> arrivals, ArrayList<Duration> durations) throws FileNotFoundException
+    static void write(Plane plane) throws FileNotFoundException
     {
-        File file = new File("../csv/" + plane + ".csv");
+        File dir = new File("./csv");
 
-        PrintWriter pw = new PrintWriter(new File("csv/" + plane + ".csv"));
+        if (!dir.exists( ))
+        {
+            //noinspection ResultOfMethodCallIgnored
+            dir.mkdir( );
+        }
+
+        File file = new File(dir + "/" + plane.getIdentifier( ) + ".csv");
+
+
+        PrintWriter pw = new PrintWriter(file);
+
         pw.println(
-                "Date,Aircraft,Origin,Origin Coordinates,Destination,Destination Coordinates,Departure,Arrival,Duration");
+                "Date,Days Since,Aircraft,Origin,Origin Coordinates,Destination,Destination Coordinates,Departure,Arrival,Duration");
 
-        int recordCount = flightDates.size( );
+        int recordCount = plane.getFlightDates( ).size( );
 
+        ArrayList<Duration> durations = plane.getDurations( );
         for (int i = 0; i < recordCount; i++)
         {
             String formattedDuration;
@@ -29,14 +38,16 @@ class CSVWriter
                     i).toHours( ) + ":" + ((durations.get(i).toMinutesPart( )) >= 10 ? durations.get(
                     i).toMinutesPart( ) : "0" + durations.get(i).toMinutesPart( )));
             pw.println(
-                    flightDates.get(i) + "," +
-                            aircraftTypes.get(i) + "," +
-                            origins.get(i) + "," +
-                            originCoordinates.get(i) + "," +
-                            destinations.get(i) + "," +
-                            destinationCoordinates.get(i) + "," +
-                            departures.get(i) + "," +
-                            arrivals.get(i) + "," +
+                    plane.getFlightDates( ).get(i) + "," +
+                            DAYS.between(plane.getFlightDates( ).get(i).atStartOfDay( ),
+                                    LocalDate.now( ).atStartOfDay( )) + "," +
+                            plane.getAircraftTypes( ).get(i) + "," +
+                            plane.getOrigins( ).get(i) + "," +
+                            plane.getOriginCoordinates( ).get(i) + "," +
+                            plane.getDestinations( ).get(i) + "," +
+                            plane.getDestinationCoordinates( ).get(i) + "," +
+                            plane.getDepartures( ).get(i) + "," +
+                            plane.getArrivals( ).get(i) + "," +
                             formattedDuration
                       );
         }
