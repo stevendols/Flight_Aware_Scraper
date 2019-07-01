@@ -6,9 +6,10 @@ public class Scraper
 
     public static void main(String[] args) throws InterruptedException
     {
+        //noinspection InfiniteLoopStatement
         while (true)
         {
-            FlightAware.main(args);
+            MapFlights.main(new String[]{"random"});
             randomDelay( );
         }
     }
@@ -28,7 +29,6 @@ public class Scraper
         Duration d = Duration.ofMillis(delay);
         long minutes = d.toMinutes( );
         long secs = d.minusMinutes(minutes).getSeconds( );
-        String toReturn = minutes + ":" + (secs >= 10 ? secs : ("0" + secs));
-        return toReturn;
+        return minutes + ":" + (secs >= 10 ? secs : ("0" + secs));
     }
 }
