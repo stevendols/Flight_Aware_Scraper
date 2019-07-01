@@ -96,8 +96,20 @@ class FlightAware
                 }
                 catch (NullPointerException | StringIndexOutOfBoundsException ex)
                 {
-                    System.out.printf("Automatic Lookup failed, please enter coordinates for %s\n>", airportCode);
-                    coordinates = '"' + scanner.nextLine( ) + '"';
+                    String full = "";
+                    try
+                    {
+                        full = e.text( ).replace("Near ", "");
+                        Thread.sleep(randomDelay( ));
+                        google = Jsoup.connect(
+                                "https://www.google.com/search?q=" + full + "+coordinates").get( );
+                        coordinates = '"' + google.selectFirst("div.kp-header").text( ) + '"';
+                    }
+                    catch (Exception x)
+                    {
+                        System.out.printf("Automatic Lookup failed, please enter coordinates for %s\n>", full);
+                        coordinates = '"' + scanner.nextLine( ) + '"';
+                    }
                 }
                 catch (IOException | InterruptedException ex)
                 {
