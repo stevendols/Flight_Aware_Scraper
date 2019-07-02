@@ -84,7 +84,8 @@ class FlightAware
             plane.getOrigins( ).add(e.text( ));
             if (!coordinatesSearched.containsKey(e.text( )))
             {
-                String airportCode = "", coordinates = "";
+                String coordinates = "";
+                String airportCode;
                 try
                 {
                     airportCode = e.text( ).substring(e.text( ).indexOf("(") + 1, e.text( ).indexOf(")"));
