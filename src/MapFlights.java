@@ -1,3 +1,5 @@
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -137,6 +139,7 @@ public class MapFlights
         }
     }
 
+    @NotNull
     private static String parseFlights(String airportName)
     {
         StringBuilder toReturn = new StringBuilder( );
@@ -162,6 +165,7 @@ public class MapFlights
     }
 
     //TODO handle blank coordinates
+    @NotNull
     private static String translateCoordinates(String s)
     {
         String latitude = s.substring(0, s.indexOf(","));
