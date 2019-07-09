@@ -19,6 +19,7 @@ class Plane
     private ArrayList<LocalTime> arrivals;
     private ArrayList<Duration> durations;
 
+    //Constructor
     Plane(String id)
     {
         identifier = id;
@@ -33,11 +34,11 @@ class Plane
         durations = new ArrayList<>( );
     }
 
+    //ACCESSOR METHODS//
     String getIdentifier()
     {
         return identifier;
     }
-
 
     ArrayList<LocalDate> getFlightDates()
     {

@@ -24,6 +24,7 @@ public class Scraper
         Thread.sleep(delay);
     }
 
+    //Helper method to display time in minutes and seconds rather than milliseconds
     private static String calculateTime(long delay)
     {
         Duration d = Duration.ofMillis(delay);

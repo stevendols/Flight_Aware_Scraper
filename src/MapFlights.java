@@ -15,6 +15,7 @@ public class MapFlights
     private static Map<String, Integer> routeCount;
     private static Map<String, String> nameHash;
 
+    //MapFlights class can take a command line argument for the plane to map, or can prompt the user during the run
     public static void main(String[] args)
     {
         String plane;
@@ -34,11 +35,14 @@ public class MapFlights
             plane = args[0];
         }
 
+        //collect the flight data from online
         p = FlightAware.collectFlightData(plane);
 
+        //construct the KML document used in mapping
         createKML( );
     }
 
+    //determine number of visits to each airport and along each route
     private static void prepareToPlot()
     {
         for (int i = 0; i < p.getRecordCount( ); i++)
@@ -55,8 +59,10 @@ public class MapFlights
         }
     }
 
+    //parse out the KML file
     private static void createKML()
     {
+        //check if the kml directory exists, otherwise create it
         File dir = new File("./kml");
         if (!dir.exists( ))
         {
@@ -64,6 +70,7 @@ public class MapFlights
             dir.mkdir( );
         }
 
+        //create the kml file for the specific plane
         File file = new File(dir + "/" + p.getIdentifier( ) + ".kml");
 
         try
@@ -82,6 +89,10 @@ public class MapFlights
             //create Placemark for each unique airport
             for (String key : visitCount.keySet( ))
             {
+                System.out.println("this place: " + ((double) visitCount.get(key)));
+                System.out.println("all places: " + (2.0 * p.getRecordCount( )));
+                System.out.println("divided: " + ((double) visitCount.get(key)) / (2.0 * p.getRecordCount( )));
+                System.out.println( );
                 kml.printf("\t\t<Placemark>\n" +
                                 "\t\t\t<name>%s</name>\n" +
                                 "\t\t\t<description>%s</description>\n" +
@@ -101,7 +112,7 @@ public class MapFlights
                                 "\t\t\t</Style>\n" +
                                 "\t\t</Placemark>\n", nameHash.get(key) + " - " + visitCount.get(key),
                         visitCount.get(key) + " flights visited this airport\n\n" + parseFlights(nameHash.get(key)),
-                        key, 0.5 * visitCount.get(key), "#FF00FF00");
+                        key, (((double) visitCount.get(key)) / (2.0 * p.getRecordCount( ))) * 3.0, "#FF00FF00");
             }
 
             //create Placemark for each route
@@ -127,9 +138,11 @@ public class MapFlights
                         routeCount.get(key), "#FFFFFFFF");
             }
 
+            //end of kml document
             kml.printf("\t</Document>\n" +
                     "</kml>");
 
+            //close the printwriter
             kml.close( );
 
         }
@@ -140,6 +153,7 @@ public class MapFlights
     }
 
     @NotNull
+    //Get all the flight information to add to the description of the node
     private static String parseFlights(String airportName)
     {
         StringBuilder toReturn = new StringBuilder( );
@@ -164,8 +178,8 @@ public class MapFlights
         return toReturn.toString( );
     }
 
-    //TODO handle blank coordinates
     @NotNull
+    //take coordinates from web and translate them to a format understood by google earth
     private static String translateCoordinates(String s)
     {
         String latitude = s.substring(0, s.indexOf(","));

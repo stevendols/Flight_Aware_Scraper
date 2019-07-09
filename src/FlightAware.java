@@ -15,6 +15,7 @@ import java.util.Scanner;
 
 class FlightAware
 {
+    //scrapes the flight history page to get all flights within last 14 days
     static Plane collectFlightData(String flight)
     {
         Document planePage = null;
@@ -22,6 +23,7 @@ class FlightAware
         String planeID;
         int recordCount;
 
+        //stores all airports that have been looked up
         Map<String, String> coordinatesSearched = new HashMap<>( );
 
         try
